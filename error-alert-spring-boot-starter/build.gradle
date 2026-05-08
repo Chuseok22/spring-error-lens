@@ -1,0 +1,5 @@
+// 코드 없는 thin starter — autoconfigure 모듈을 소비자에게 노출
+dependencies {
+    // api 대신 implementation: 소비자는 AutoConfiguration.imports를 통해 자동 감지하므로 직접 import 불필요
+    implementation project(':error-alert-spring-boot-autoconfigure')
+}

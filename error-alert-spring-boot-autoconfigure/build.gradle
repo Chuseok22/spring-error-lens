@@ -1,0 +1,22 @@
+dependencies {
+    api project(':error-alert-core')
+    implementation project(':error-alert-logback')
+
+    // Spring Boot 3.x API — 소비자 애플리케이션이 제공하므로 compileOnly
+    // platform()을 compileOnly로 사용하면 BOM이 배포 POM에 포함되지 않음
+    compileOnly platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
+    compileOnly 'org.springframework:spring-webmvc'
+    compileOnly 'jakarta.servlet:jakarta.servlet-api'
+    compileOnly 'org.springframework.boot:spring-boot-starter-aop'
+
+    // 설정 메타데이터 생성용 어노테이션 프로세서
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    testImplementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'ch.qos.logback:logback-classic:1.5.15'
+}

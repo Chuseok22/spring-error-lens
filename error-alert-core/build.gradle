@@ -1,0 +1,5 @@
+// 순수 Java 도메인 모듈 — Spring 의존성 없음
+dependencies {
+    // 라이브러리 내부 로깅용 (소비자에게 전이됨)
+    api 'org.slf4j:slf4j-api:2.0.16'
+}

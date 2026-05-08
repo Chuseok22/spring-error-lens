@@ -1,0 +1,8 @@
+dependencies {
+    api project(':error-alert-core')
+
+    // 소비자 애플리케이션이 Logback을 제공하므로 compileOnly
+    compileOnly 'ch.qos.logback:logback-classic:1.5.15'
+
+    testImplementation 'ch.qos.logback:logback-classic:1.5.15'
+}
