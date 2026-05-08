@@ -1,0 +1,23 @@
+name: Nexus Publish
+
+on:
+  repository_dispatch:
+    types: [version-bumped]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    uses: Chuseok22/nexus-publish/.github/workflows/reusable-nexus-publish.yml@v1
+    with:
+      release_version: ${{ github.event.client_payload.new_version }}
+      release_tag: ${{ github.event.client_payload.new_tag }}
+      source_sha: ${{ github.event.client_payload.sha }}
+      java_version: "17"
+      test_task: "test"
+      publish_task: "publish"
+    secrets:
+      NEXUS_REPOSITORY_URL: ${{ secrets.NEXUS_REPOSITORY_URL }}
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
