@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: error-alert-sample
+
+error-alert:
+  enabled: true
+  environment: local
+
+  application:
+    name: ${spring.application.name}
+    version-source: build-info
+
+  logging:
+    minimum-level: ERROR
+    warn-enabled: false
+
+  aggregation:
+    request-enabled: true
+    scheduler-enabled: true
+    async-enabled: true
+
+  queue:
+    capacity: 1000
+    full-policy: DROP_NEW
+
+  llm:
+    enabled: false
+
+  discord:
+    enabled: false
+
+  telegram:
+    enabled: false
