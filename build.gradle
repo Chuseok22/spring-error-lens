@@ -25,6 +25,10 @@ configure(subprojects.findAll { it.name != 'error-alert-sample-app' }) {
         withJavadocJar()
     }
 
+    javadoc {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
     test {
         useJUnitPlatform()
     }
