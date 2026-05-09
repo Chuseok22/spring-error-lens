@@ -2,9 +2,14 @@ package io.github.chuseok22.erroralert.autoconfigure.request;
 
 import io.github.chuseok22.erroralert.core.aggregation.ErrorContextHolder;
 import io.github.chuseok22.erroralert.core.model.ApplicationInfo;
+import io.github.chuseok22.erroralert.core.model.ErrorEvent;
+import io.github.chuseok22.erroralert.core.model.ErrorLevel;
+import io.github.chuseok22.erroralert.core.model.EventType;
 import io.github.chuseok22.erroralert.core.model.MergedErrorEvent;
 import io.github.chuseok22.erroralert.core.model.RequestContext;
 import io.github.chuseok22.erroralert.core.queue.ErrorAlertQueue;
+import io.github.chuseok22.erroralert.core.util.ThrowableUtils;
+import io.github.chuseok22.erroralert.core.worker.AlertGuard;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,10 +68,39 @@ public class RequestErrorContextFilter extends OncePerRequestFilter {
 
         try {
             chain.doFilter(effectiveRequest, response);
+        } catch (Exception ex) {
+            // 필터 체인에서 전파된 예외를 fallback으로 관찰 (이미 Logback Appender에서 캡처된 경우 중복 허용)
+            if (!AlertGuard.isProcessing()) {
+                errorContext.addError(buildExceptionEvent(ex, errorContext.getContextId()));
+            }
+            rethrow(ex);
         } finally {
             flushIfNeeded(errorContext);
             ErrorContextHolder.clear();
         }
+    }
+
+    private ErrorEvent buildExceptionEvent(Throwable ex, String contextId) {
+        return ErrorEvent.builder()
+                .eventType(EventType.EXCEPTION)
+                .level(ErrorLevel.ERROR)
+                .occurredAt(Instant.now())
+                .loggerName(RequestErrorContextFilter.class.getName())
+                .threadName(Thread.currentThread().getName())
+                .message(ex.getMessage())
+                .throwableExists(true)
+                .exceptionClass(ex.getClass().getName())
+                .exceptionMessage(ex.getMessage())
+                .stackTrace(ThrowableUtils.formatStackTrace(ex))
+                .executionContextId(contextId)
+                .build();
+    }
+
+    private static void rethrow(Exception ex) throws IOException, ServletException {
+        if (ex instanceof RuntimeException re) throw re;
+        if (ex instanceof IOException io) throw io;
+        if (ex instanceof ServletException se) throw se;
+        throw new ServletException(ex);
     }
 
     private boolean shouldCacheBody(HttpServletRequest request) {
